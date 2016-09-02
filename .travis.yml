@@ -1,3 +1,13 @@
+matrix:
+  include:
+    - addons:
+        apt:
+          packages:
+            - gcc
+    - addons:
+        apt:
+          packages:
+            - clang
 sudo: false
 language: python
 python:
@@ -6,7 +16,6 @@ addons:
     apt:
         packages:
             - make
-            - gcc
             - python-virtualenv
             - unzip
 before_script:
