@@ -1,18 +1,19 @@
 matrix:
-  - addons:
-      apt:
-        packages:
-          - gcc
-          - make
-          - python-virtualenv
-          - unzip
-  - addons:
-      apt:
-        packages:
-          - clang
-          - make
-          - python-virtualenv
-          - unzip
+  include:
+    - addons:
+        apt:
+          packages:
+            - gcc
+            - make
+            - python-virtualenv
+            - unzip
+    - addons:
+        apt:
+          packages:
+            - clang
+            - make
+            - python-virtualenv
+            - unzip
 sudo: false
 language: python
 python:
