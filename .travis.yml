@@ -4,10 +4,16 @@ matrix:
         apt:
           packages:
             - gcc
+            - make
+            - python-virtualenv
+            - unzip
     - addons:
         apt:
           packages:
             - clang
+            - make
+            - python-virtualenv
+            - unzip
 sudo: false
 language: python
 python:
@@ -15,9 +21,6 @@ python:
 addons:
     apt:
         packages:
-            - make
-            - python-virtualenv
-            - unzip
 before_script:
 - "cd .."
 # make virtual env
