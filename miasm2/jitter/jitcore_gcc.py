@@ -55,7 +55,7 @@ class JitCore_Gcc(JitCore_Cc_Base):
             inc_dir = ["-I%s" % inc for inc in self.include_files]
             libs = ["%s" % lib for lib in self.libs]
             args = ["cc"] + ["-O3"] + [
-                "-shared", "-fPIC", fname_in, '-o', fname_tmp] + inc_dir + libs
+                "-dynamiclib", "-fPIC", fname_in, '-o', fname_tmp] + inc_dir + libs
             check_call(args)
             # Move temporary file to final file
             os.rename(fname_tmp, fname_out)
