@@ -1,16 +1,12 @@
 addons:
-  - apt:
-      packages:
-        - gcc
-        - make
-        - python-virtualenv
-        - unzip
-  - apt:
-      packages:
-        - clang
-        - make
-        - python-virtualenv
-        - unzip
+  apt:
+    packages:
+      - make
+      - python-virtualenv
+      - unzip
+compiler:
+  - gcc
+  - clang
 sudo: false
 language: python
 python: 2.7
