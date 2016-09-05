@@ -40,6 +40,7 @@ before_script:
 - "make install"
 - "cd ../.."
 # install miasm
+- "gcc -v;"
 - "cd ..;"
 - "cd miasm;"
 - "python setup.py build build_ext -I$(pwd)/../virtualenv/include -L$(pwd)/../virtualenv/tinycc"
