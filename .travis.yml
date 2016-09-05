@@ -1,24 +1,16 @@
-matrix:
-  include:
-    - addons:
-        apt:
-          packages:
-            - gcc
-            - make
-            - python-virtualenv
-            - unzip
-    - addons:
-        apt:
-          packages:
-            - clang
-            - make
-            - python-virtualenv
-            - unzip
-  exclude:
-    - addons:
-        apt:
-          packages:
-
+addons:
+  - apt:
+      packages:
+        - gcc
+        - make
+        - python-virtualenv
+        - unzip
+  - apt:
+      packages:
+        - clang
+        - make
+        - python-virtualenv
+        - unzip
 sudo: false
 language: python
 python: 2.7
