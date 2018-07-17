@@ -105,15 +105,15 @@ def fill_loc_db_with_symbols(elf, loc_db, base_addr=0):
             if symbol_entry.shndx == 0:
                 # SHN_UNDEF
                 continue
-            if symbol_entry.shndx == 0xfff2:
-                # SHN_COMMON
-                raise RuntimeError("Unsupported SHN_COMMON: %r",
-                                   symbol_entry)
             elif symbol_entry.shndx == 0xfff1:
                 # SHN_ABS
                 absolute = True
                 log.debug("Absolute symbol %r - %x", symbol_entry.name,
                           symbol_entry.value)
+            elif 0xff00 <= symbol_entry.shndx <= 0xffff:
+                # Reserved index (between SHN_LORESERV and SHN_HIRESERVE)
+                raise RuntimeError("Unsupported reserved index: %r",
+                                   symbol_entry)
 
             name = symbol_entry.name
             if name == "":
@@ -144,9 +144,22 @@ def fill_loc_db_with_symbols(elf, loc_db, base_addr=0):
 
 
 def apply_reloc_x86(elf, vm, section, base_addr, loc_db):
-    TO_RESOLVE = {}
-    addr_writer = lambda vaddr, addr: vm.set_mem(vaddr,
-                                                 struct.pack("<Q", addr))
+    """Apply relocation for x86 ELF contained in the secion @section
+    @elf: elfesteem's ELF instance
+    @vm: VmMngr instance
+    @section: elf's section containing relocation to perform
+    @base_addr: addr to reloc to
+    @loc_db: LocationDB used to retrieve symbols'offset
+    """
+    if elf.size == 64:
+        addr_writer = lambda vaddr, addr: vm.set_mem(vaddr,
+                                                     struct.pack("<Q", addr))
+    elif elf.size == 32:
+        addr_writer = lambda vaddr, addr: vm.set_mem(vaddr,
+                                                     struct.pack("<I", addr))
+    else:
+        raise ValueError("Unsupported elf size %d" % pelf.elf.size)
+
     symb_section = section.linksection
     for reloc in section.reltab:
 
@@ -159,8 +172,6 @@ def apply_reloc_x86(elf, vm, section, base_addr, loc_db):
         elif elf.size == 32:
             r_info_sym = (r_info >> 8) & 0xFFFFFF
             r_info_type = r_info & 0xFF
-        else:
-            raise ValueError("Unsupported elf size %d" % pelf.elf.size)
 
         is_ifunc = False
         symbol_entry = None
@@ -214,14 +225,14 @@ def apply_reloc_x86(elf, vm, section, base_addr, loc_db):
                                                       reloc)
             )
         if is_ifunc:
-            # Resolve at runtime
-            sym_addr = addr
-            addr = len(TO_RESOLVE) + BASE_RESOLVE * 8
-            TO_RESOLVE[addr] = (sym_addr, where)
+            # Resolve at runtime - not implemented for now
+            log.warning("Relocation for %r (at %x, currently pointing on %x) "
+                        "has to be resolved at runtime",
+                        name, where, sym_addr)
+            continue
 
         log.debug("Write %x at %x", addr, where)
         addr_writer(where, addr)
-    return TO_RESOLVE
 
 
 def vm_load_elf(vm, fdata, name="", base_addr=0, loc_db=None, apply_reloc=False,
