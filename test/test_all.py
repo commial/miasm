@@ -1,6 +1,7 @@
 #! /usr/bin/env python2
 
 import argparse
+from distutils.spawn import find_executable
 import time
 import os
 import tempfile
@@ -685,6 +686,26 @@ for jitter in ExampleJitter.jitter_engines:
                              ["--jitter", jitter],
                              products=[Example.get_sample("box_upx_exe_unupx.bin")],
                              tags=tags.get(jitter, []))
+    if jitter == "llvm":
+        tags = tags.get(jitter, []) + [TAGS["long"]]
+        ls_path = find_executable("ls")
+        file_path = find_executable("file")
+        # Launch simulation of "file /bin/ls", with access to libs and ld info
+        testset += ExampleJitter(["run_with_linuxenv_x86_64.py", "-v", "-p",
+                                  '/(.*lib.*\.so(\.\d+)?)|(/etc/ld.so.*)|(.*magic.*)|(%s)' % ls_path,
+                                  ] + ["--jitter", jitter] + [
+                                      file_path, ls_path,
+                                  ],
+                                 tags=tags)
+        # Launch simulation of "ls -lah /etc/passwd", with access to libs and passwd
+        testset += ExampleJitter(["run_with_linuxenv_x86_64.py", "-v", "-p",
+                                  '/(.*lib.*\.so(\.\d+)?)|(/etc/passwd)',
+                                  ] + ["--jitter", jitter, "-f", "lah"] + [
+                                      ls_path, "/etc/passwd",
+                                  ],
+                                 tags=tags)
+
+
 
 for script, dep in [(["x86_32.py", Example.get_sample("x86_32_sc.bin")], []),
                     (["arm.py", Example.get_sample("md5_arm"), "--mimic-env"],
